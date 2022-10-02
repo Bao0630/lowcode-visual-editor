@@ -1,14 +1,15 @@
 <template>
   <div class="app">
-    <VisualEditor :data="state"></VisualEditor>
+    <VisualEditor v-model="state"></VisualEditor>
   </div>
 
 </template>
 
 <script>
-import { ref } from 'vue';
+import { provide, ref } from 'vue';
 import data from './data.json';
-import VisualEditor from './packages/visual-editor'
+import VisualEditor from './packages/visual-editor';
+import {registerConfig as config} from './utils/editor-config';
 
 export default {
   components: {
@@ -16,6 +17,8 @@ export default {
   },
   setup() {
     const state = ref(data);
+
+    provide('config', config); // provide 通信
 
 
     return {

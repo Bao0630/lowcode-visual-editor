@@ -13,6 +13,38 @@
   }
   &-material {
     left: 0;
+    &-item {
+      width: 250px;
+      margin: 20px auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: white;
+      padding: 10px;
+      box-sizing: border-box;
+      cursor: move;
+      -webkit-user-select: none;
+      user-select: none;
+      min-height: 80px;
+      position: relative;
+      > span {
+        position: absolute;
+        top: 0;
+        left: 0;
+        padding: 2px 4px;
+        background-color: lightblue; 
+      }
+      &::after {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-color: white;
+          opacity: 0.3;
+        }
+    }
   }
   &-panel {
     right: 0;
@@ -36,10 +68,13 @@
       height: 100%;
       &__content {
         margin: 20px auto;
-        height: 550px;
-        width: 550px;
         background: yellow;
+        position: relative;
       }
     }
   }
+}
+
+.editor-block {
+  position: absolute;
 }
