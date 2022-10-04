@@ -15,8 +15,7 @@ export default defineComponent({
   },
   emits: ['update:modelValue'],
   setup(props, context) {
-    console.log(props.modelValue);
-
+    // console.log(props.modelValue);
     const data = computed({
       get() {
         return props.modelValue
@@ -31,18 +30,23 @@ export default defineComponent({
       height: `${data.value.container.height}px`
     }));
 
+    const blockUpdateHandler = (index, block) => {
+      let blocks = data.value.blocks;
+      blocks[index] = block;
+      data.value = {
+        ...data.value,
+        blocks: [
+          ...blocks
+        ]
+      };
+    };
+
     const config = inject('config');
 
     const containerRef = ref(null);
     const { dragstart, dragend } = useComponentDragger(containerRef, data);
-    
-    const { blockMousedown, containerMousedown, focusData } = useFocus(data, (e) => {
-      mousedown(e)
-    });
-    
-    const { mousedown } = useBlockDragger(focusData)
-
-
+    const { blockMousedown, containerMousedown, focusData, lastSelectedBlock } = useFocus(data, (e) => mousedown(e));
+    const { mousedown, markline } = useBlockDragger(data, focusData, lastSelectedBlock)
 
 
 
@@ -70,17 +74,21 @@ export default defineComponent({
             ref={containerRef}
             onMousedown={containerMousedown}
           >
+            
             {
-              (data.value.blocks.map(block => (
+              (data.value.blocks.map((block, index) => (
                 <EditorBlock
                   class={block.focus ? 'editor-block-focus' : ''}
                   block={block}
-                  onMousedown={(e) => blockMousedown(e, block)}
+                  onMousedown={(e) => blockMousedown(e, block, index)}
+                  updateBlock={blockUpdateHandler}
+                  index={index}
                 ></EditorBlock>
               )))
             }
+            {markline.x !== null && <div class="markline-x" style={{ left: `${markline.x}px` }}></div>}
+            {markline.y !== null && <div class="markline-y" style={{ top: `${markline.y}px` }}></div>}
           </div>
-
         </div>
       </div>
     </div>

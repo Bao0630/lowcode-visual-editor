@@ -14,7 +14,7 @@ export function useComponentDragger(containerRef, data) {
   const drop = (e) => {
     
     let blocks = data.value.blocks;
-    data.value  = {
+    data.value = {
       ...data.value,
       blocks: [
         ...blocks,
