@@ -35,15 +35,15 @@
         background-color: lightblue; 
       }
       &::after {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background-color: white;
-          opacity: 0.3;
-        }
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: white;
+        opacity: 0.3;
+      }
     }
   }
   &-panel {
@@ -77,4 +77,19 @@
 
 .editor-block {
   position: absolute;
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: white;
+    opacity: 0.3;
+  }
+  &-focus {
+    &::after {
+      border: 2px dashed red;
+    }
+  }
 }

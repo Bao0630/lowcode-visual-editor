@@ -1,20 +1,28 @@
 import { computed } from "vue";
 import { inject } from "vue";
+import { ref } from "vue";
 import { defineComponent } from "vue";
 import EditorBlock from "./editor-block";
 import './visual-editor.scss';
+import deepcopy from "deepcopy";
+import { useComponentDragger } from "./useComponentDragger";
+import { useFocus } from "./useFocus";
 
 export default defineComponent({
   props: {
     modelValue: { type: Object }
   },
-  setup(props) {
+  emits: ['update:modelValue'],
+  setup(props, context) {
     console.log(props.modelValue);
+
     const data = computed({
       get() {
         return props.modelValue
+      },
+      set(value) {
+        context.emit('update:modelValue', deepcopy(value));
       }
-
     });
 
     const containerStyles = computed(() => ({
@@ -24,10 +32,51 @@ export default defineComponent({
 
     const config = inject('config');
 
+    const containerRef = ref(null);
+    const { dragstart, dragend } = useComponentDragger(containerRef, data);
+    const { blockMousedown, containerMousedown, focusData } = useFocus(data, (e) => {
+      mousedown(e)
+    });
+    let dragState = {
+      startX: 0,
+      startY: 0
+    }
+    const mousemove = (e) => {
+      let { clientX: moveX, clientY: moveY } = e;
+      let durX = moveX - dragState.startX;
+      let durY = moveY - dragState.startY;
+      focusData.value.focused.forEach((block, idx) => {
+        block.top = dragState.startPos[idx].top + durY;
+        block.left = dragState.startPos[idx].left + durX;
+      })
+
+    }
+    const mouseup = () => {
+      document.removeEventListener('mousemove', mousemove);
+      document.removeEventListener('mouseup', mouseup);
+    }
+    const mousedown = (e) => {
+      dragState = {
+        startX: e.clientX,
+        startY: e.clientY,
+        startPos: focusData.value.focused.map(({ top, left }) => ({ top, left }))
+      }
+      document.addEventListener('mousemove', mousemove);
+      document.addEventListener('mouseup', mouseup);
+    }
+
+
+
+
     return () => <div class="editor">
       <div class="editor-material">
         {config.componentsList.map(component => (
-          <div class="editor-material-item">
+          <div
+            class="editor-material-item"
+            draggable
+            onDragstart={e => dragstart(e, component)}
+            onDragend={e => dragend(e)}
+          >
             <span>{component.label}</span>
             <div>{component.preview()}</div>
           </div>
@@ -37,14 +86,23 @@ export default defineComponent({
       <div class="editor-panel">kongzhilan</div>
       <div class="editor-container">
         <div class="editor-container-canvas">
-          <div class="editor-container-canvas__content" style={containerStyles.value}>
+          <div
+            class="editor-container-canvas__content"
+            style={containerStyles.value}
+            ref={containerRef}
+            onMousedown={containerMousedown}
+          >
             {
               (data.value.blocks.map(block => (
-                <EditorBlock block={block}></EditorBlock>
+                <EditorBlock
+                  class={block.focus ? 'editor-block-focus' : ''}
+                  block={block}
+                  onMousedown={(e) => blockMousedown(e, block)}
+                ></EditorBlock>
               )))
             }
           </div>
-          
+
         </div>
       </div>
     </div>
