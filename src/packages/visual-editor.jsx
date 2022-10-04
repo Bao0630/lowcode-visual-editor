@@ -7,6 +7,7 @@ import './visual-editor.scss';
 import deepcopy from "deepcopy";
 import { useComponentDragger } from "./useComponentDragger";
 import { useFocus } from "./useFocus";
+import { useBlockDragger } from "./useBlockDragger";
 
 export default defineComponent({
   props: {
@@ -34,36 +35,13 @@ export default defineComponent({
 
     const containerRef = ref(null);
     const { dragstart, dragend } = useComponentDragger(containerRef, data);
+    
     const { blockMousedown, containerMousedown, focusData } = useFocus(data, (e) => {
       mousedown(e)
     });
-    let dragState = {
-      startX: 0,
-      startY: 0
-    }
-    const mousemove = (e) => {
-      let { clientX: moveX, clientY: moveY } = e;
-      let durX = moveX - dragState.startX;
-      let durY = moveY - dragState.startY;
-      focusData.value.focused.forEach((block, idx) => {
-        block.top = dragState.startPos[idx].top + durY;
-        block.left = dragState.startPos[idx].left + durX;
-      })
+    
+    const { mousedown } = useBlockDragger(focusData)
 
-    }
-    const mouseup = () => {
-      document.removeEventListener('mousemove', mousemove);
-      document.removeEventListener('mouseup', mouseup);
-    }
-    const mousedown = (e) => {
-      dragState = {
-        startX: e.clientX,
-        startY: e.clientY,
-        startPos: focusData.value.focused.map(({ top, left }) => ({ top, left }))
-      }
-      document.addEventListener('mousemove', mousemove);
-      document.addEventListener('mouseup', mouseup);
-    }
 
 
 
