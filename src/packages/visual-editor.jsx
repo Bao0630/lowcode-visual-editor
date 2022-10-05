@@ -8,6 +8,7 @@ import deepcopy from "deepcopy";
 import { useComponentDragger } from "./useComponentDragger";
 import { useFocus } from "./useFocus";
 import { useBlockDragger } from "./useBlockDragger";
+import { useCommand } from "./useCommand";
 
 export default defineComponent({
   props: {
@@ -49,6 +50,15 @@ export default defineComponent({
     const { mousedown, markline } = useBlockDragger(data, focusData, lastSelectedBlock)
 
 
+    const buttons = [
+      {label: '撤销', icon: 'icon-back', handler: ()=>commands.undo()},
+      {label: '重做', icon: 'icon-forward', handler: ()=>commands.redo()},
+      {label: '撤销', icon: 'icon-back', handler: ()=>commands.undo()},
+
+    ];
+
+    const {commands} = useCommand(data);
+    console.log('command:', commands);
 
     return () => <div class="editor">
       <div class="editor-material">
@@ -64,7 +74,14 @@ export default defineComponent({
           </div>
         ))}
       </div>
-      <div class="editor-menu">caidan</div>
+      <div class="editor-menu">
+        {buttons.map((btn) => {
+          return <div class="editor-menu-button" onClick={btn.handler}>
+            <i class={btn.icon}></i>
+            <span>{btn.label}</span>
+          </div>
+        })}
+      </div>
       <div class="editor-panel">kongzhilan</div>
       <div class="editor-container">
         <div class="editor-container-canvas">
