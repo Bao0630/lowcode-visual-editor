@@ -87,7 +87,7 @@
       height: 100%;
       &__content {
         margin: 20px auto;
-        background: yellow;
+        background: white;
         position: relative;
       }
     }
@@ -110,6 +110,11 @@
     &::after {
       border: 2px dashed red;
     }
+  }
+  &-preview {
+    &::after {
+      display: none;
+    } 
   }
 }
 .markline {

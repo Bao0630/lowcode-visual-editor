@@ -17,7 +17,8 @@ export default defineComponent({
   },
   emits: ['update:modelValue'],
   setup(props, context) {
-    // console.log(props.modelValue);
+    const previewRef = ref(true);
+
     const data = computed({
       get() {
         return props.modelValue
@@ -47,7 +48,7 @@ export default defineComponent({
 
     const containerRef = ref(null);
     const { dragstart, dragend } = useComponentDragger(containerRef, data);
-    const { blockMousedown, containerMousedown, focusData, lastSelectedBlock } = useFocus(data, (e) => mousedown(e));
+    const { blockMousedown, containerMousedown, clearBlockFocus, focusData, lastSelectedBlock } = useFocus(data, previewRef, (e) => mousedown(e));
     const { mousedown, markline } = useBlockDragger(data, focusData, lastSelectedBlock)
 
 
@@ -77,10 +78,22 @@ export default defineComponent({
           });
         }
       },
+      { label: '置顶', icon: 'icon-place-top', handler: () => commands.placeTop() },
+      { label: '置底', icon: 'icon-place-bottom', handler: () => commands.placeBottom() },
+      { label: '删除', icon: 'icon-delete', handler: () => commands.delete() },
+      {
+        label: () => previewRef.value ? '编辑' : '预览',
+        icon: () => previewRef.value ? 'icon-edit' : 'icon-browse',
+        handler: () => {
+          previewRef.value = !previewRef.value;
+          clearBlockFocus();
+        }
+      },
+
 
     ];
 
-    const { commands } = useCommand(data);
+    const { commands } = useCommand(data, focusData);
     console.log('command:', commands);
 
     return () => <div class="editor">
@@ -99,9 +112,11 @@ export default defineComponent({
       </div>
       <div class="editor-menu">
         {buttons.map((btn) => {
+          const icon = typeof btn.icon == 'function' ? btn.icon() : btn.icon;
+          const label = typeof btn.label == 'function' ? btn.label() : btn.label;
           return <div class="editor-menu-button" onClick={btn.handler}>
-            <i class={btn.icon}></i>
-            <span>{btn.label}</span>
+            <i class={icon}></i>
+            <span>{label}</span>
           </div>
         })}
       </div>
@@ -119,6 +134,7 @@ export default defineComponent({
               (data.value.blocks.map((block, index) => (
                 <EditorBlock
                   class={block.focus ? 'editor-block-focus' : ''}
+                  class={previewRef.value ? 'editor-block-preview' : ''}
                   block={block}
                   onMousedown={(e) => blockMousedown(e, block, index)}
                   updateBlock={blockUpdateHandler}

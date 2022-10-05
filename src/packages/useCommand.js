@@ -2,7 +2,7 @@ import { events } from "./events";
 import deepcopy from 'deepcopy';
 import { onUnmounted } from "vue";
 
-export function useCommand(data) {
+export function useCommand(data, focusData) {
   const state = {
     current: -1, // index of current state
     opQueue: [], //
@@ -111,6 +111,73 @@ export function useCommand(data) {
       }
     }
 
+  });
+
+  registry({
+    name: 'placeTop',
+    pushQueue: true,
+    execute() {
+      let before = deepcopy(data.value.blocks);
+      let after = (() => {
+        let {focused, unfocused} = focusData.value;
+        const maxZIndex = unfocused.reduce((pre, curBlock) => Math.max(pre, curBlock.zIndex), -Infinity) + 1;
+        focused.forEach((block) => block.zIndex = maxZIndex);
+        return data.value.blocks;
+      })();
+
+      return {
+        redo: () => {
+          data.value = {...data.value, blocks: after};
+        },
+        undo: () => {
+          data.value = {...data.value, blocks: before}
+        }
+      }
+    }
+  });
+
+  registry({
+    name: 'placeBottom',
+    pushQueue: true,
+    execute() {
+      let before = deepcopy(data.value.blocks);
+      let after = (() => {
+        let {focused, unfocused} = focusData.value;
+        const minZIndex = unfocused.reduce((pre, curBlock) => Math.min(pre, curBlock.zIndex), Infinity) - 1;
+        
+        if (minZIndex < 0) {
+          unfocused.forEach((block) => block.zIndex++);
+        }
+        focused.forEach((block) => block.zIndex = minZIndex < 0 ? 0 : minZIndex);
+        return data.value.blocks;
+      })();
+
+      return {
+        redo: () => {
+          data.value = {...data.value, blocks: after};
+        },
+        undo: () => {
+          data.value = {...data.value, blocks: before}
+        }
+      }
+    }
+  });
+
+  registry({
+    name: 'delete',
+    pushQueue: true,
+    execute() {
+      let before = deepcopy(data.value.blocks);
+      let after = focusData.value.unfocused;
+      return {
+        redo: () => {
+          data.value = {...data.value, blocks: after};
+        },
+        undo: () => {
+          data.value = {...data.value, blocks: before}
+        }
+      }
+    }
   });
 
   const KeyboardEvent = (() => {
