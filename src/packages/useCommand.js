@@ -4,17 +4,17 @@ import { onUnmounted } from "vue";
 
 export function useCommand(data) {
   const state = {
-    current: -1,
-    opQueue: [],
-    commands: {},
+    current: -1, // index of current state
+    opQueue: [], //
+    commands: {}, // map of command name to actting function
     commandArray: [],
     destoryArray: []
   }
 
   const registry = (command) => {
     state.commandArray.push(command);
-    state.commands[command.name] = () => {
-      const { redo, undo } = command.execute();
+    state.commands[command.name] = (...args) => {
+      const { redo, undo } = command.execute(...args);
       redo();
       if (!command.pushQueue) {
         return;
@@ -86,14 +86,31 @@ export function useCommand(data) {
       return {
         redo() {
           data.value = { ...data.value, blocks: after };
-          // debugger
         },
         undo() {
           data.value = { ...data.value, blocks: before };
-          // debugger
         }
       }
     }
+  });
+  registry({
+    name: 'updateContainer',
+    pushQueue: true,
+    execute(newValue) {
+      let state = {
+        before: data.value,
+        after: newValue
+      }
+      return {
+        redo: () => {
+          data.value = state.after;
+        },
+        undo: () => {
+          data.value = state.before;
+        }
+      }
+    }
+
   });
 
   const KeyboardEvent = (() => {
@@ -121,9 +138,7 @@ export function useCommand(data) {
       window.addEventListener('keydown', onKeydown);
       return () => {
         window.removeEventListener('keydown', onKeydown);
-
       }
-      
     }
     return init;
   })();

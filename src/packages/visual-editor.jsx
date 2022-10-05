@@ -9,6 +9,7 @@ import { useComponentDragger } from "./useComponentDragger";
 import { useFocus } from "./useFocus";
 import { useBlockDragger } from "./useBlockDragger";
 import { useCommand } from "./useCommand";
+import { $dialog } from "@/components/DialogForm";
 
 export default defineComponent({
   props: {
@@ -51,13 +52,35 @@ export default defineComponent({
 
 
     const buttons = [
-      {label: '撤销', icon: 'icon-back', handler: ()=>commands.undo()},
-      {label: '重做', icon: 'icon-forward', handler: ()=>commands.redo()},
-      {label: '撤销', icon: 'icon-back', handler: ()=>commands.undo()},
+      { label: '撤销', icon: 'icon-back', handler: () => commands.undo() },
+      { label: '重做', icon: 'icon-forward', handler: () => commands.redo() },
+      {
+        label: '导入', icon: 'icon-import', handler: () => {
+          $dialog({
+            title: '导入 JSON',
+            content: '',
+            footer: true,
+            onConfirm(text) {
+              // data.value = JSON.parse(text);
+              commands.updateContainer(JSON.parse(text));
+            }
+          });
+
+        }
+      },
+      {
+        label: '导出', icon: 'icon-export', handler: () => {
+          $dialog({
+            title: '导出 JSON',
+            content: JSON.stringify(data.value),
+            footer: false
+          });
+        }
+      },
 
     ];
 
-    const {commands} = useCommand(data);
+    const { commands } = useCommand(data);
     console.log('command:', commands);
 
     return () => <div class="editor">
@@ -91,7 +114,7 @@ export default defineComponent({
             ref={containerRef}
             onMousedown={containerMousedown}
           >
-            
+
             {
               (data.value.blocks.map((block, index) => (
                 <EditorBlock
