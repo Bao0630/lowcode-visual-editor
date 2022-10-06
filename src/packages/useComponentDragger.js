@@ -25,7 +25,9 @@ export function useComponentDragger(containerRef, data) {
           left: e.offsetX,
           zIndex: 1,
           type: currentComponent.type,
-          alignCenter: true
+          alignCenter: true,
+          props: {},
+          model: {}
         }
       ]
     }

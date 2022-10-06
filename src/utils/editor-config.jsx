@@ -1,3 +1,4 @@
+import RangeSelector from '@/components/RangeSelector';
 import { ElButton, ElInput} from 'element-plus'
 
 function createComponentsConfig() {
@@ -36,7 +37,7 @@ console.log(registerConfig);
 registerConfig.register({
   label: '文本',
   preview: () => 'TextArea prewview',
-  render: () => 'Text',
+  render: ({props}) => <span style={{color: props.color, fontSize: props.size}}>{props.text || '文本'}</span>,
   type: 'text',
   props: {
     text: createInputProp('输入文本内容'),
@@ -56,7 +57,7 @@ registerConfig.register({
 registerConfig.register({
   label: '按钮',
   preview: () => <ElButton type="primary">Button</ElButton>,
-  render: () => <ElButton type="primary">Button</ElButton>,
+  render: ({props}) => <ElButton type={props.type} size={props.size}>{props.text || '按钮'}</ElButton>,
   type: 'button',
   props: {
     text: createInputProp('输入按钮内容'),
@@ -65,12 +66,11 @@ registerConfig.register({
       {label: '成功', value: 'success'},
       {label: '警告', value: 'warning'},
       {label: '危险', value: 'danger'},
-      {label: '文本', value: 'text'},
+      {label: '信息', value: 'info'},
     ]),
     size: createSelectProp('按钮尺寸', [
-      {label: '默认', value: 'primary'},
+      {label: '中等（默认）', value: 'default'},
       {label: '大', value: 'large'},
-      {label: '中等', value: 'default'},
       {label: '小', value: 'small'},
       
     ]),
@@ -80,8 +80,33 @@ registerConfig.register({
 registerConfig.register({
   label: '输入',
   preview: () => <ElInput placeholder="text"></ElInput>,
-  render: () => <ElInput placeholder="text"></ElInput>,
-  type: 'input'
+  render: ({model}) => <ElInput placeholder="text" {...model.default}></ElInput>,
+  type: 'input',
+  model: {
+    default: '绑定字段'
+  }
+});
+
+registerConfig.register({
+  label: '范围选择器',
+  preview: () => <RangeSelector placeholder="text"></RangeSelector>,
+  render: ({model}) => {
+    console.log(model);
+    return <RangeSelector
+      {...{
+        start:model.start.modelValue,
+        end:model.end.modelValue,
+        'onUpdate:start': model.start['onUpdate:modelValue'],
+        'onUpdate:end': model.end['onUpdate:modelValue'],
+      }}
+
+    ></RangeSelector>
+  },
+  type: 'range',
+  model: {
+    start: '开始范围',
+    end: '结束范围'
+  }
 });
 
 

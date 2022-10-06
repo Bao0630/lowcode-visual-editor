@@ -12,10 +12,12 @@ import { useCommand } from "./useCommand";
 import { $dialog } from "@/components/DialogForm";
 import { $dropdown, DropdownItem } from "@/components/DropdownMenu";
 import EditorOperator from "./editor-operator";
+import { ElButton } from "element-plus";
 
 export default defineComponent({
   props: {
-    modelValue: { type: Object }
+    modelValue: { type: Object },
+    formData: {type: Object}
   },
   emits: ['update:modelValue'],
   setup(props, context) {
@@ -94,18 +96,21 @@ export default defineComponent({
       },
       {
         label: '关闭', icon: 'icon-close', handler: () => {
-          editorRef.value = true;
+          editorRef.value = false;
           clearBlockFocus();
+        }
+      },
+      {
+        label: '保存', icon: 'icon-save', handler: () => {
+          alert('保存');
         }
       },
 
     ];
 
     const { commands } = useCommand(data, focusData);
-    console.log('command:', commands);
 
     const onContextMenuBlock = (e, block) => {
-      console.log(block);
       e.preventDefault();
       $dropdown({
         el: e.target,
@@ -147,11 +152,17 @@ export default defineComponent({
             <EditorBlock
               class={'editor-block-preview'}
               block={block}
+              formData={props.formData}
             ></EditorBlock>
           )))
         }
       </div>
-      <div><ElButton type="primary" onClick={() => editorRef.value = false}>返回编辑</ElButton></div>
+      <div style="position: fixed; top:0; left:0;">
+        <ElButton type="info" onClick={() => editorRef.value = true}>
+          返回编辑
+        </ElButton>
+        {JSON.stringify(props.formData)}
+      </div>
     </>
       :
       <div class="editor">
@@ -179,7 +190,12 @@ export default defineComponent({
           })}
         </div>
         <div class="editor-panel">
-          <EditorOperator block={lastSelectedBlock.value} data={data.value}></EditorOperator>
+          <EditorOperator
+            block={lastSelectedBlock.value}
+            data={data.value}
+            updateContainer={commands.updateContainer}
+            updateBlock={commands.updateBlock}
+          ></EditorOperator>
         </div>
         <div class="editor-container">
           <div class="editor-container-canvas">
@@ -197,8 +213,9 @@ export default defineComponent({
                     block={block}
                     onMousedown={(e) => blockMousedown(e, block, index)}
                     onContextmenu={(e) => onContextMenuBlock(e, block)}
-                    updateBlock={blockUpdateHandler}
+                    updateIndexBlock={blockUpdateHandler}
                     index={index}
+                    formData={props.formData}
                   ></EditorBlock>
                 )))
               }

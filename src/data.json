@@ -10,19 +10,32 @@
       "left": 100,
       "zIndex": 1,
       "type": "text",
-      "placeholder": ""
+      "props": {
+        "text": "文本",
+        "color": "#cccccc",
+        "size": "16px" 
+      }
     },
     {
       "top": 100,
       "left": 200,
       "zIndex": 1,
-      "type": "input"
+      "type": "input",
+      "props": {
+        "text": ""
+      },
+      "model": {}
     },
     {
       "top": 200,
       "left": 100,
       "zIndex": 1,
-      "type": "button"
+      "type": "button",
+      "props": {
+        "text": "按钮",
+        "type": "primary",
+        "size": "large" 
+      }
     }
 
   ]

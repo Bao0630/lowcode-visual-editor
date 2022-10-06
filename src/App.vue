@@ -1,6 +1,6 @@
 <template>
   <div class="app">
-    <VisualEditor v-model="state"></VisualEditor>
+    <VisualEditor v-model="state" :formData="formData"></VisualEditor>
   </div>
 
 </template>
@@ -22,8 +22,16 @@ export default {
     provide('config', config); // provide 通信
 
 
+    const formData = ref({
+      username: 'Bao',
+      password: 123123,
+      start: 1,
+      end: 200
+    })
+
     return {
-      state
+      state,
+      formData
     }
   }
 }
