@@ -44,7 +44,7 @@ export function useCommand(data, focusData) {
             item.redo && item.redo();
             state.current++;
           }
-          
+
         }
       }
     }
@@ -55,13 +55,13 @@ export function useCommand(data, focusData) {
     execute() {
       return {
         redo() {
-          if (state.current === -1) return ;
+          if (state.current === -1) return;
           let item = state.opQueue[state.current];
           if (item) {
             item.undo && item.undo();
             state.current--;
           }
-          
+
         }
       }
     }
@@ -114,12 +114,39 @@ export function useCommand(data, focusData) {
   });
 
   registry({
+    name: 'updateBlock',
+    pushQueue: true,
+    execute(newBlock, oldBlock) {
+      let state = {
+        before: data.value.blocks,
+        after: (() => {
+          let blocks = [...data.value.blocks];
+          const index = data.value.blocks.indexOf(oldBlock);
+          if (index !== -1) {
+            blocks.splice(index, 1, newBlock)
+          }
+          return blocks;
+        })()
+      }
+      return {
+        redo: () => {
+          data.value = { ...data.value, blocks: state.after };
+        },
+        undo: () => {
+          data.value = { ...data.value, blocks: state.before };
+        }
+      }
+    }
+
+  });
+
+  registry({
     name: 'placeTop',
     pushQueue: true,
     execute() {
       let before = deepcopy(data.value.blocks);
       let after = (() => {
-        let {focused, unfocused} = focusData.value;
+        let { focused, unfocused } = focusData.value;
         const maxZIndex = unfocused.reduce((pre, curBlock) => Math.max(pre, curBlock.zIndex), -Infinity) + 1;
         focused.forEach((block) => block.zIndex = maxZIndex);
         return data.value.blocks;
@@ -127,10 +154,10 @@ export function useCommand(data, focusData) {
 
       return {
         redo: () => {
-          data.value = {...data.value, blocks: after};
+          data.value = { ...data.value, blocks: after };
         },
         undo: () => {
-          data.value = {...data.value, blocks: before}
+          data.value = { ...data.value, blocks: before }
         }
       }
     }
@@ -142,9 +169,9 @@ export function useCommand(data, focusData) {
     execute() {
       let before = deepcopy(data.value.blocks);
       let after = (() => {
-        let {focused, unfocused} = focusData.value;
+        let { focused, unfocused } = focusData.value;
         const minZIndex = unfocused.reduce((pre, curBlock) => Math.min(pre, curBlock.zIndex), Infinity) - 1;
-        
+
         if (minZIndex < 0) {
           unfocused.forEach((block) => block.zIndex++);
         }
@@ -154,10 +181,10 @@ export function useCommand(data, focusData) {
 
       return {
         redo: () => {
-          data.value = {...data.value, blocks: after};
+          data.value = { ...data.value, blocks: after };
         },
         undo: () => {
-          data.value = {...data.value, blocks: before}
+          data.value = { ...data.value, blocks: before }
         }
       }
     }
@@ -171,10 +198,10 @@ export function useCommand(data, focusData) {
       let after = focusData.value.unfocused;
       return {
         redo: () => {
-          data.value = {...data.value, blocks: after};
+          data.value = { ...data.value, blocks: after };
         },
         undo: () => {
-          data.value = {...data.value, blocks: before}
+          data.value = { ...data.value, blocks: before }
         }
       }
     }
@@ -186,14 +213,14 @@ export function useCommand(data, focusData) {
       90: 'z'
     }
     const onKeydown = (e) => {
-      const {ctrlKey, keyCode} = e;
+      const { ctrlKey, keyCode } = e;
       let keyStr = [];
       if (ctrlKey) keyStr.push('ctrl');
       keyStr.push(keyCodeMap[keyCode]);
       keyStr = keyStr.join('+');
 
-      state.commandArray.forEach(({keyboard, name}) => {
-        if (!keyboard) return ;
+      state.commandArray.forEach(({ keyboard, name }) => {
+        if (!keyboard) return;
         if (keyboard === keyStr) {
           state.commands[name]();
           e.preventDefault();

@@ -17,20 +17,65 @@ function createComponentsConfig() {
 
 export let registerConfig = createComponentsConfig();
 
+const createInputProp = label => ({
+  type: 'input',
+  label
+});
+const createColorProp = label => ({
+  type: 'color',
+  label
+});
+const createSelectProp = (label, option) => ({
+  type: 'select',
+  label,
+  option
+})
+
 console.log(registerConfig);
 
 registerConfig.register({
-  label: '标题',
+  label: '文本',
   preview: () => 'TextArea prewview',
   render: () => 'Text',
-  type: 'text'
+  type: 'text',
+  props: {
+    text: createInputProp('输入文本内容'),
+    color: createColorProp('字体颜色'),
+    size: createSelectProp('字体大小', [
+      {label: '12px', value: '12px'},
+      {label: '14px', value: '14px'},
+      {label: '16px', value: '16px'},
+      {label: '18px', value: '18px'},
+      {label: '20px', value: '20px'},
+      {label: '24px', value: '24px'},
+      {label: '28px', value: '28px'}
+    ]),
+  }
 
 });
 registerConfig.register({
   label: '按钮',
   preview: () => <ElButton type="primary">Button</ElButton>,
   render: () => <ElButton type="primary">Button</ElButton>,
-  type: 'button'
+  type: 'button',
+  props: {
+    text: createInputProp('输入按钮内容'),
+    type: createSelectProp('按钮类型', [
+      {label: '基础', value: 'primary'},
+      {label: '成功', value: 'success'},
+      {label: '警告', value: 'warning'},
+      {label: '危险', value: 'danger'},
+      {label: '文本', value: 'text'},
+    ]),
+    size: createSelectProp('按钮尺寸', [
+      {label: '默认', value: 'primary'},
+      {label: '大', value: 'large'},
+      {label: '中等', value: 'default'},
+      {label: '小', value: 'small'},
+      
+    ]),
+    
+  },
 });
 registerConfig.register({
   label: '输入',
@@ -38,6 +83,8 @@ registerConfig.register({
   render: () => <ElInput placeholder="text"></ElInput>,
   type: 'input'
 });
+
+
 // registerConfig.register({
 //   label: '选项框',
 //   preview: () => <Checkbox disabled={true}>Checkbox</Checkbox>,

@@ -10,6 +10,8 @@ import { useFocus } from "./useFocus";
 import { useBlockDragger } from "./useBlockDragger";
 import { useCommand } from "./useCommand";
 import { $dialog } from "@/components/DialogForm";
+import { $dropdown, DropdownItem } from "@/components/DropdownMenu";
+import EditorOperator from "./editor-operator";
 
 export default defineComponent({
   props: {
@@ -17,7 +19,8 @@ export default defineComponent({
   },
   emits: ['update:modelValue'],
   setup(props, context) {
-    const previewRef = ref(true);
+    const previewRef = ref(false);
+    const editorRef = ref(true)
 
     const data = computed({
       get() {
@@ -89,64 +92,121 @@ export default defineComponent({
           clearBlockFocus();
         }
       },
-
+      {
+        label: '关闭', icon: 'icon-close', handler: () => {
+          editorRef.value = true;
+          clearBlockFocus();
+        }
+      },
 
     ];
 
     const { commands } = useCommand(data, focusData);
     console.log('command:', commands);
 
-    return () => <div class="editor">
-      <div class="editor-material">
-        {config.componentsList.map(component => (
-          <div
-            class="editor-material-item"
-            draggable
-            onDragstart={e => dragstart(e, component)}
-            onDragend={e => dragend(e)}
-          >
-            <span>{component.label}</span>
-            <div>{component.preview()}</div>
-          </div>
-        ))}
-      </div>
-      <div class="editor-menu">
-        {buttons.map((btn) => {
-          const icon = typeof btn.icon == 'function' ? btn.icon() : btn.icon;
-          const label = typeof btn.label == 'function' ? btn.label() : btn.label;
-          return <div class="editor-menu-button" onClick={btn.handler}>
-            <i class={icon}></i>
-            <span>{label}</span>
-          </div>
-        })}
-      </div>
-      <div class="editor-panel">kongzhilan</div>
-      <div class="editor-container">
-        <div class="editor-container-canvas">
-          <div
-            class="editor-container-canvas__content"
-            style={containerStyles.value}
-            ref={containerRef}
-            onMousedown={containerMousedown}
-          >
+    const onContextMenuBlock = (e, block) => {
+      console.log(block);
+      e.preventDefault();
+      $dropdown({
+        el: e.target,
+        content: () => {
+          return <div>
+            <DropdownItem label="删除" icon="icon-delete" onClick={() => commands.delete()}></DropdownItem>
+            <DropdownItem label="置顶" icon='icon-place-top' onClick={() => commands.placeTop()}></DropdownItem>
+            <DropdownItem label="置底" icon='icon-place-bottom' onClick={() => commands.placeBottom()}></DropdownItem>
+            <DropdownItem label="查看" icon='icon-place-browse' onClick={() => {
+              $dialog({
+                title: '查看组件数据',
+                content: JSON.stringify(block)
+              })
+            }}></DropdownItem>
+            <DropdownItem label="导入" icon='icon-place-import' onClick={() => {
+              $dialog({
+                title: '导入组件数据',
+                content: '',
+                footer: true,
+                onConfirm(text) {
+                  text = JSON.parse(text);
+                  commands.updateBlock(text, block);
+                }
+              })
+            }}></DropdownItem>
 
-            {
-              (data.value.blocks.map((block, index) => (
-                <EditorBlock
-                  class={block.focus ? 'editor-block-focus' : ''}
-                  class={previewRef.value ? 'editor-block-preview' : ''}
-                  block={block}
-                  onMousedown={(e) => blockMousedown(e, block, index)}
-                  updateBlock={blockUpdateHandler}
-                  index={index}
-                ></EditorBlock>
-              )))
-            }
-            {markline.x !== null && <div class="markline-x" style={{ left: `${markline.x}px` }}></div>}
-            {markline.y !== null && <div class="markline-y" style={{ top: `${markline.y}px` }}></div>}
+          </div>
+        },
+      });
+    }
+
+    return () => !editorRef.value ? <>
+      <div
+        class="editor-container-canvas__content"
+        style={containerStyles.value}
+      >
+        {
+          (data.value.blocks.map((block) => (
+            <EditorBlock
+              class={'editor-block-preview'}
+              block={block}
+            ></EditorBlock>
+          )))
+        }
+      </div>
+      <div><ElButton type="primary" onClick={() => editorRef.value = false}>返回编辑</ElButton></div>
+    </>
+      :
+      <div class="editor">
+        <div class="editor-material">
+          {config.componentsList.map(component => (
+            <div
+              class="editor-material-item"
+              draggable
+              onDragstart={e => dragstart(e, component)}
+              onDragend={e => dragend(e)}
+            >
+              <span>{component.label}</span>
+              <div>{component.preview()}</div>
+            </div>
+          ))}
+        </div>
+        <div class="editor-menu">
+          {buttons.map((btn) => {
+            const icon = typeof btn.icon == 'function' ? btn.icon() : btn.icon;
+            const label = typeof btn.label == 'function' ? btn.label() : btn.label;
+            return <div class="editor-menu-button" onClick={btn.handler}>
+              <i class={icon}></i>
+              <span>{label}</span>
+            </div>
+          })}
+        </div>
+        <div class="editor-panel">
+          <EditorOperator block={lastSelectedBlock.value} data={data.value}></EditorOperator>
+        </div>
+        <div class="editor-container">
+          <div class="editor-container-canvas">
+            <div
+              class="editor-container-canvas__content"
+              style={containerStyles.value}
+              ref={containerRef}
+              onMousedown={containerMousedown}
+            >
+
+              {
+                (data.value.blocks.map((block, index) => (
+                  <EditorBlock
+                    class={(block.focus ? 'editor-block-focus' : '') + (previewRef.value ? 'editor-block-preview' : '')}
+                    block={block}
+                    onMousedown={(e) => blockMousedown(e, block, index)}
+                    onContextmenu={(e) => onContextMenuBlock(e, block)}
+                    updateBlock={blockUpdateHandler}
+                    index={index}
+                  ></EditorBlock>
+                )))
+              }
+              {markline.x !== null && <div class="markline-x" style={{ left: `${markline.x}px` }}></div>}
+              {markline.y !== null && <div class="markline-y" style={{ top: `${markline.y}px` }}></div>}
+            </div>
           </div>
         </div>
       </div>
-    </div>
   }
 })

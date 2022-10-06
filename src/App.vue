@@ -40,6 +40,6 @@ export default {
   left: 20px;
   right: 20px;
   bottom: 20px;
-  background-color: whitesmoke;
+  // background-color: lightgray;
 }
 </style>
