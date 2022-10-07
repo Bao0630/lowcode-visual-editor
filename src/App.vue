@@ -10,7 +10,6 @@ import { provide, ref } from 'vue';
 import data from './data.json';
 import VisualEditor from './packages/visual-editor';
 import {registerConfig as config} from './utils/editor-config';
-import 'element-plus/dist/index.css';
 
 export default {
   components: {
