@@ -95,14 +95,15 @@ export default defineComponent({
         }
       },
       {
-        label: '关闭', icon: 'icon-close', handler: () => {
+        label: '发布', icon: 'icon-close', handler: () => {
           editorRef.value = false;
           clearBlockFocus();
         }
       },
       {
         label: '保存', icon: 'icon-save', handler: () => {
-          alert('保存');
+          sessionStorage.setItem('pageData', JSON.stringify(data.value));
+          alert('saved in sessionStorage');
         }
       },
 

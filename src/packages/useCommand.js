@@ -29,7 +29,7 @@ export function useCommand(data, focusData) {
       // debugger;
       opQueue.push({ redo, undo });
       state.current = current + 1;
-      console.log(opQueue);
+      console.log('history:', opQueue);
     }
   }
 

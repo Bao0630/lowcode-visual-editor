@@ -16,7 +16,9 @@ export default {
     VisualEditor
   },
   setup() {
-    const state = ref(data);
+    const pageData = sessionStorage.getItem('pageData') ? JSON.parse(sessionStorage.getItem('pageData')) : data;
+
+    const state = ref(pageData);
 
     provide('config', config); // provide 通信
 

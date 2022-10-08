@@ -26,7 +26,6 @@ export default defineComponent({
         state.editData = deepcopy(props.data.container);
       } else {
         state.editData = deepcopy(props.block);
-        console.log(state.editData.props);
       }
     };
 

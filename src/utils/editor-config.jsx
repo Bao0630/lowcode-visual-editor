@@ -33,7 +33,7 @@ const createSelectProp = (label, option) => ({
 })
 
 console.log(registerConfig);
-const placeholderImg = "https://dummyimage.com/100x50";
+const placeholderImgSite = "https://dummyimage.com/";
 
 registerConfig.register({
   label: '文本',
@@ -109,7 +109,6 @@ registerConfig.register({
   label: '范围选择器',
   preview: () => <RangeSelector placeholder="text"></RangeSelector>,
   render: ({ model }) => {
-    console.log(model);
     return <RangeSelector
       {...{
         start: model.start.modelValue,
@@ -133,9 +132,9 @@ registerConfig.register({
     width: true,
     height: true
   },
-  preview: () => <img src={placeholderImg}></img>,
+  preview: () => <img src={`${placeholderImgSite}100x50`}></img>,
   render: ({ props, size }) => <img
-    src={props.text || placeholderImg}
+    src={props.text || `${placeholderImgSite}${size.width}x${size.height}`}
     alt="img"
     style={{ height: `${size.height}px`, width: `${size.width}px` }}
   ></img>,
