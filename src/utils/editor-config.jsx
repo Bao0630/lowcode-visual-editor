@@ -13,7 +13,6 @@ function createComponentsConfig() {
       componentsMap[component.type] = component;
     }
   };
-
 }
 
 export let registerConfig = createComponentsConfig();
