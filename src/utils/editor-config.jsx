@@ -133,7 +133,7 @@ registerConfig.register({
   },
   preview: () => <img src={`${placeholderImgSite}100x50`}></img>,
   render: ({ props, size }) => <img
-    src={props.text || `${placeholderImgSite}${size.width}x${size.height}`}
+    src={props.text || `${placeholderImgSite}${size.width || 100}x${size.height || 50}`}
     alt="img"
     style={{ height: `${size.height}px`, width: `${size.width}px` }}
   ></img>,
