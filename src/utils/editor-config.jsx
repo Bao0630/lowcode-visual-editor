@@ -82,9 +82,7 @@ registerConfig.register({
       { label: '中等（默认）', value: 'default' },
       { label: '大', value: 'large' },
       { label: '小', value: 'small' },
-
     ]),
-
   },
 });
 registerConfig.register({
